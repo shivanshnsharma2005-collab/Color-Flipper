@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Flipper</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #6C63FF;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transition: background 0.6s ease;
+        }
+        .app { width: 100%; max-width: 450px; text-align: center; }
+        .badge {
+            display: inline-block;
+            padding: 7px 14px;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 30px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+        h1 { font-size: 42px; margin-bottom: 7px; }
+        .subtitle { color: rgba(255,255,255,0.75); margin-bottom: 22px; }
+        .card {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 25px;
+            padding: 28px 24px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.25);
+        }
+        .color-preview {
+            height: 170px;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .label {
+            display: block;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 8px;
+        }
+        #colorCode { font-size: 34px; font-weight: bold; letter-spacing: 1px; }
+        .color-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 14px;
+            background: white;
+            color: #222;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .color-btn:active { transform: scale(0.97); }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .stat { background: rgba(255,255,255,0.10); border-radius: 14px; padding: 15px; }
+        .stat span { display: block; font-size: 23px; font-weight: bold; }
+        .stat small { color: rgba(255,255,255,0.65); font-size: 11px; }
+        .history-section { margin-top: 25px; text-align: left; }
+        .section-title { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .reset {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+        }
+        .history { display: flex; gap: 8px; flex-wrap: wrap; min-height: 40px; }
+        .color-box {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.5);
+            cursor: pointer;
+        }
+        .empty { color: rgba(255,255,255,0.6); font-size: 12px; }
+        footer { margin-top: 18px; font-size: 10px; color: rgba(255,255,255,0.6); }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="badge">JAVASCRIPT MINI PROJECT</div>
+        <h1>Color Flipper</h1>
+        <p class="subtitle">Discover a new color with every click.</p>
+
+        <div class="card">
+            <div class="color-preview">
+                <div>
+                    <span class="label">CURRENT COLOR</span>
+                    <span id="colorCode">#6C63FF</span>
+                </div>
+            </div>
+
+            <button class="color-btn" onclick="changeColor()">🎨 Change Color</button>
+
+            <div class="stats">
+                <div class="stat">
+                    <span id="colorCount">0</span>
+                    <small>Colors Generated</small>
+                </div>
+                <div class="stat">
+                    <span>HEX</span>
+                    <small>Color Format</small>
+                </div>
+            </div>
+
+            <div class="history-section">
+                <div class="section-title">
+                    <span>Recent Colors</span>
+                    <button class="reset" onclick="resetColors()">Reset</button>
+                </div>
+                <div id="history" class="history">
+                    <span class="empty">No colors generated yet</span>
+                </div>
+            </div>
+        </div>
+
+        <footer>Built with HTML • CSS • JavaScript</footer>
+    </div>
+
+    <script>
+        let colorCount = 0;
+
+        function generateColor() {
+            const characters = "0123456789ABCDEF";
+            let color = "#";
+
+            for (let i = 0; i < 6; i++) {
+                const randomNumber = Math.floor(Math.random() * characters.length);
+                color += characters[randomNumber];
+            }
+
+            return color;
+        }
+
+        function changeColor() {
+            const newColor = generateColor();
+            document.body.style.background = newColor;
+            document.getElementById("colorCode").textContent = newColor;
+
+            colorCount++;
+            document.getElementById("colorCount").textContent = colorCount;
+            addToHistory(newColor);
+        }
+
+        function addToHistory(color) {
+            const history = document.getElementById("history");
+            const empty = history.querySelector(".empty");
+
+            if (empty) {
+                empty.remove();
+            }
+
+            const box = document.createElement("div");
+            box.className = "color-box";
+            box.style.background = color;
+            box.title = color;
+            box.setAttribute("role", "button");
+            box.setAttribute("tabindex", "0");
+            box.setAttribute("aria-label", "Apply color " + color);
+
+            function applyColor() {
+                document.body.style.background = color;
+                document.getElementById("colorCode").textContent = color;
+            }
+
+            box.onclick = applyColor;
+            box.onkeydown = function(event) {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    applyColor();
+                }
+            };
+
+            history.prepend(box);
+
+            if (history.children.length > 10) {
+                history.removeChild(history.lastChild);
+            }
+        }
+
+        function resetColors() {
+            colorCount = 0;
+            document.body.style.background = "#6C63FF";
+            document.getElementById("colorCode").textContent = "#6C63FF";
+            document.getElementById("colorCount").textContent = "0";
+            document.getElementById("history").innerHTML =
+                '<span class="empty">No colors generated yet</span>';
+        }
+    </script>
+</body>
+</html>
